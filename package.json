@@ -1,10 +1,12 @@
 {
+  
   "name": "library-backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/server.js"
   },
+
   "repository": {
     "type": "git",
     "url": "git+https://github.com/iceptutemalahleni/library-backend.git"
@@ -17,7 +19,12 @@
   "homepage": "https://github.com/iceptutemalahleni/library-backend#readme",
   "description": "",
   "dependencies": {
+    "@prisma/client": "^6.17.1",
     "express": "^5.1.0",
     "nodemon": "^3.1.10"
-  }
+  },
+  "devDependencies": {
+    "prisma": "^6.17.1"
+  },
+  "keywords": []
 }
