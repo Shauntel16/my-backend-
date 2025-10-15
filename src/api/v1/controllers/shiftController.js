@@ -15,11 +15,6 @@ exports.createShift = (req, res) => {
   try {
     const { schedule_id, sa_id, shift_date, start_time, end_time, status } = req.body;
 
-    // Validate required fields
-    if (!schedule_id || !sa_id || !shift_date || !start_time || !end_time || !status) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
     const newShift = {
       shift_id: nextShiftId++,
       schedule_id,

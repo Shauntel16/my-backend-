@@ -1,17 +1,32 @@
 const express = require('express');
+const path = require('path');
 const authRoutes = require('./api/v1/routes/authRoutes');
+const shiftRoutes = require('./api/v1/routes/shiftRoutes');
 const errorHandler = require('./utils/errorHandler');
 
 const app = express();
 
-app.use('/api/v1/auth', authRoutes);
-//app.use('/api/v1/shifts', require(path.join(__dirname, 'src', 'api', 'v1', 'routes', 'shiftRoutes')));
+// Parse incoming JSON
+app.use(express.json());
 
+// Mount routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/shifts', shiftRoutes); 
+
+// Health check route (optional)
+app.get('/', (req, res) => {
+  res.json({ success: true, message: 'Library backend running' });
+});
+
+// Error handling middleware
 app.use(errorHandler);
 
+// Start server only if this file is run directly
 if (require.main === module) {
   const port = process.env.PORT || 3000;
-  app.listen(port, () => console.log(`Server running on http://localhost:${port}`));
+  app.listen(port, () =>
+    console.log(`Server running on http://localhost:${port}`)
+  );
 }
 
 module.exports = app;
