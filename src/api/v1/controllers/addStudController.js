@@ -22,10 +22,12 @@ const studAssistances = [
   },
 ];
 
+//Used for just testing only
 exports.getStudAssistance = (req, res, next) => {
   res.send("Arrived");
 };
 
+//funtion to add students
 exports.addStud = (req, res, next) => {
   const { studId, name, email, password, phone } = req.body;
 
@@ -40,6 +42,7 @@ exports.addStud = (req, res, next) => {
   res.send("Student assistance added");
 };
 
+//Function to remove student Assistance
 exports.removeStudAssistance = (req, res, next) => {
   const { email } = req.body;
 
@@ -51,6 +54,7 @@ exports.removeStudAssistance = (req, res, next) => {
   res.send("Removed Student assistance: ", removedStudent);
 };
 
+//Function to display all student assistance
 exports.displayStud = (req, res, next) => {
   res.send(studAssistances);
 };
