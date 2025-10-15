@@ -1,4 +1,26 @@
-const studAssistances = [];
+const studAssistances = [
+  {
+    id: "1",
+    name: "MADIMETJA",
+    email: "231933271@tut4life.ac.za",
+    password: "10111",
+    phone: "0818461529",
+  },
+  {
+    id: "2",
+    name: "TRYPHO",
+    email: "madi@gmail.com",
+    password: "54321",
+    phone: "07939293",
+  },
+  {
+    id: "3",
+    name: "KGOBE",
+    email: "try@gmail.com",
+    password: "123456",
+    phone: "07607103",
+  },
+];
 
 exports.getStudAssistance = (req, res, next) => {
   res.send("Arrived");
@@ -19,19 +41,16 @@ exports.addStud = (req, res, next) => {
 };
 
 exports.removeStudAssistance = (req, res, next) => {
-  studAssistances.forEach((element) => {
-    const { studId } = req.body;
+  const { email } = req.body;
 
-    if (element.id == studId) {
-      //code for removing
-    }
-  });
+  const index = studAssistances.findIndex((element) => element.email === email);
 
-  console.log("This student has been removed: ", removedStudent);
-  res.send("Removed Student assistance");
+  const removedStudent = studAssistances.splice(index, 1);
+  console.log(removedStudent);
+  console.log(index);
+  res.send("Removed Student assistance: ", removedStudent);
 };
 
 exports.displayStud = (req, res, next) => {
-  console.log(studAssistances);
-  res.send("Student assistance displayed in the console");
+  res.send(studAssistances);
 };
