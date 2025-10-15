@@ -5,18 +5,28 @@ exports.getStudAssistance = (req, res, next) => {
 };
 
 exports.addStud = (req, res, next) => {
-  const { name, email, password, phone } = req.body;
+  const { studId, name, email, password, phone } = req.body;
+
   studAssistances.push({
+    id: studId,
     name: name,
     email: email,
     password: password,
     phone: phone,
   });
+
   res.send("Student assistance added");
 };
 
-exports.removeStudAssistance = () => {
-  const removedStudent = studAssistances.pop();
+exports.removeStudAssistance = (req, res, next) => {
+  studAssistances.forEach((element) => {
+    const { studId } = req.body;
+
+    if (element.id == studId) {
+      //code for removing
+    }
+  });
+
   console.log("This student has been removed: ", removedStudent);
   res.send("Removed Student assistance");
 };
