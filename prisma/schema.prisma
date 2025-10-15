@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model StudentAssistant{
+  id Int @id  @default(autoincrement())
+  name String
+  email String
+  password String
+  phone String
+ created_Date DateTime @default(now())
+}
+
+model Administrator{
+  id Int @id @default(autoincrement())
+  name String
+  email String 
+  password String
+  created_Date DateTime @default(now())
+}
+
+model LeaveRequest{
+  id Int @id @default(autoincrement())
+  reason String
+  start_Date DateTime
+  end_date DateTime
+}
+
+model Attendance{
+  id Int @id  @default(autoincrement())
+  work_date DateTime
+  check_in_time DateTime
+  check_out_time DateTime
+  hours_worked Decimal
+
+}
+
+model Shift{
+  id Int @id  @default(autoincrement())
+  shift_date DateTime
+  start_time DateTime
+  end_time DateTime
+}
+
+model ShiftExchange{
+  id Int @id  @default(autoincrement())
+  created_Date DateTime @default(now())
+}
+
+model Location{
+  id Int @id  @default(autoincrement())
+  name String
+  address String 
+}
+
+model Schedule{
+  id Int @id  @default(autoincrement())
+  month_start DateTime
+  month_end DateTime
+  created_Date DateTime @default(now())
+}
+
+model LibraryClosure{
+  id Int @id  @default(autoincrement())
+  closure_date DateTime
+  reason String
+ created_Date DateTime @default(now())
+}
