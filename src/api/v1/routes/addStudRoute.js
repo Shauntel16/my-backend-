@@ -7,6 +7,6 @@ router.get("/AddStud", addStudController.getStudAssistance);
 
 router.post("/AddStud", addStudController.addStud);
 router.get("/display", addStudController.displayStud);
-router.put("/removeStud", addStudController.removeStudAssistance);
+router.delete("/removeStud", addStudController.removeStudAssistance);
 
 module.exports = router;

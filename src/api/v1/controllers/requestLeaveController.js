@@ -29,10 +29,12 @@ const leaveRequests = [
   },
 ];
 
+//Display all the leave requests
 exports.getLeaveRequests = (req, res, next) => {
   res.send(leaveRequests);
 };
 
+//Approve/Decline leave requests
 exports.updateLeaveRequest = (req, res, next) => {
   const { id, status } = req.body;
 

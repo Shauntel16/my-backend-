@@ -14,67 +14,141 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model StudentAssistant{
-  id Int @id  @default(autoincrement())
-  name String
-  email String
-  password String
-  phone String
- created_Date DateTime @default(now())
+  model StudentAssistant{
+    stud_Assistance_id Int @id  @default(autoincrement())
+    administrator Administrator @relation(fields: [createdBy], references: [admin_id])
+    createdBy Int //Id of the admin
+    location Location @relation(fields: [location_id], references: [location_id])
+    location_id Int  //Location ID
+    name String
+    email String @unique
+    password String
+    phone String
+    leaveRequests LeaveRequest[]
+    attendances Attendance[]
+    shifts Shift[]
+    requestedExchanges ShiftExchange[] @relation("Requester")
+    acceptedExchanges  ShiftExchange[] @relation("Accepter")
+    status Status @default(ACTIVE)
+    created_Date DateTime @default(now())
+  }
+ 
+enum Status{
+ ACTIVE
+ DEACTIVATED
 }
 
 model Administrator{
-  id Int @id @default(autoincrement())
+  admin_id Int @id @default(autoincrement())
   name String
-  email String 
+  email String @unique
   password String
+  studentAssistants StudentAssistant[]
+  shiftExchanges ShiftExchange[]
+  schedules Schedule[]
+  leaveRequests LeaveRequest[]
+  libraryClosures LibraryClosure[]
   created_Date DateTime @default(now())
 }
 
 model LeaveRequest{
-  id Int @id @default(autoincrement())
+  leave_id Int @id @default(autoincrement())
+  studentAssistant StudentAssistant @relation(fields: [studAssi_id], references: [stud_Assistance_id])
+  studAssi_id Int //StudenAssi ID
+  administrator Administrator @relation(fields: [reviewed_by], references: [admin_id])
+  reviewed_by Int //admin ID
   reason String
   start_Date DateTime
   end_date DateTime
+  leave_type Leave_type
+  isGranted IsGranted @default(PENDING)// Stands for either approve/decline
+  reviewed_at DateTime
+}
+
+enum IsGranted{
+  PENDING
+  APPROVED 
+  DECLINED
+}
+
+enum Leave_type{
+  SICK
+  MATERNITY_LEAVE
+  FAMILY_RESPOSIBILITY
 }
 
 model Attendance{
-  id Int @id  @default(autoincrement())
+  attendance_id Int @id  @default(autoincrement())
+  studentAssistant StudentAssistant @relation(fields: [studAssi_id], references: [stud_Assistance_id])
+  studAssi_id Int //Student Assistant ID
+  shift Shift @relation(fields: [shiftFK_id], references: [shift_id])
+  shiftFK_id Int  @unique//Shift ID
   work_date DateTime
   check_in_time DateTime
   check_out_time DateTime
   hours_worked Decimal
+  attendance_Status Attendance_Status
+}
 
+enum Attendance_Status{
+  ACTIVE
+  DEACTIVATED
 }
 
 model Shift{
-  id Int @id  @default(autoincrement())
+  shift_id Int @id  @default(autoincrement())
+  attendance Attendance?
+  studentAssistant StudentAssistant @relation(fields: [studAssi_id], references: [stud_Assistance_id])
+  studAssi_id Int //Student Assistant ID
+  schedule Schedule @relation(fields: [sched_id], references: [schedule_id])
+  sched_id Int //Schedule ID
+  shiftExchanges ShiftExchange[]
   shift_date DateTime
   start_time DateTime
   end_time DateTime
 }
 
 model ShiftExchange{
-  id Int @id  @default(autoincrement())
+  exchange_id Int @id  @default(autoincrement())
+  shifts Shift @relation(fields: [shiftFK_id], references: [shift_id])
+  shiftFK_id Int //shift ID
+  requester    StudentAssistant @relation("Requester", fields: [requester_id], references: [stud_Assistance_id])
+  requester_id Int
+  accepter     StudentAssistant? @relation("Accepter", fields: [accepter_id], references: [stud_Assistance_id])
+  accepter_id  Int?
+  administrator Administrator? @relation(fields: [reviewed_by], references: [admin_id])
+  reviewed_by Int? // reviewed_by - admin ID 
   created_Date DateTime @default(now())
 }
 
 model Location{
-  id Int @id  @default(autoincrement())
+  location_id Int @id  @default(autoincrement())
   name String
-  address String 
+  studentAssistances StudentAssistant[]
+  schedules Schedule[]
+  libraryClosures LibraryClosure[]
 }
 
 model Schedule{
-  id Int @id  @default(autoincrement())
+  schedule_id Int @id  @default(autoincrement())
+  administrator Administrator @relation(fields: [reviewed_by], references: [admin_id])
+  reviewed_by Int //admin ID
+  location Location @relation(fields: [loc_id], references: [location_id])
+  loc_id Int   //Location ID
+  shifts Shift[]
   month_start DateTime
   month_end DateTime
   created_Date DateTime @default(now())
 }
 
 model LibraryClosure{
-  id Int @id  @default(autoincrement())
+  closure_id Int @id  @default(autoincrement())
+  administrator Administrator @relation(fields: [reviewed_by], references: [admin_id])
+  reviewed_by Int //admin ID
+  location Location @relation(fields: [loc_id], references: [location_id])
+  loc_id Int   //Location ID
   closure_date DateTime
   reason String
  created_Date DateTime @default(now())
+
 }
