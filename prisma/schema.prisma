@@ -87,7 +87,7 @@ model Attendance{
   check_in_time DateTime
   check_out_time DateTime
   hours_worked Decimal
-  attendance_Status Attendance_Status
+  attendance_Status Attendance_Status @default(ACTIVE)
 }
 
 enum Attendance_Status{
@@ -105,7 +105,13 @@ model Shift{
   shiftExchanges ShiftExchange[]
   shift_date DateTime
   start_time DateTime
+  shift_Status Shift_Status @default(ACTIVE)
   end_time DateTime
+}
+
+enum Shift_Status{
+  ACTIVE
+  DEACTIVATED
 }
 
 model ShiftExchange{
