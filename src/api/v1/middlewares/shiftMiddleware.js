@@ -2,12 +2,12 @@
 
 
 function validateShift(req, res, next) {
-  const { schedule_id, sa_id, shift_date, start_time, end_time, status } = req.body;
+  const { sched_id, studAssi_id, shift_date, start_time, end_time, shift_Status } = req.body;
 
-  if (!schedule_id || !sa_id || !shift_date || !start_time || !end_time || !status) {
+  if (!sched_id || !studAssi_id || !shift_date || !start_time || !end_time || !shift_Status) {
     return res.status(400).json({
       success: false,
-      message: "Missing required fields: schedule_id, sa_id, shift_date, start_time, end_time, and status are required",
+      message: "Missing required fields: sched_id, studAssi_id, shift_date, start_time, end_time, and shift_Status are required",
     });
   }
 
@@ -15,3 +15,5 @@ function validateShift(req, res, next) {
 }
 
 module.exports = validateShift;
+
+

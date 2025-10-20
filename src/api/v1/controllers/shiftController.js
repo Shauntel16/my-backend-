@@ -1,35 +1,33 @@
-// src/api/v1/controllers/shiftController.js
-
-/**
- * TEMPORARY: In-memory storage for now
- * Later you'll replace this with DB queries.
- */
-let shifts = [];
-let nextShiftId = 1;
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 /**
  * @desc Create a new shift
  * @route POST /api/shifts
  */
-exports.createShift = (req, res) => {
+exports.createShift = async (req, res) => {
   try {
-    const { schedule_id, sa_id, shift_date, start_time, end_time, status } = req.body;
+    const { sched_id, studAssi_id, shift_date, start_time, end_time, shift_Status } = req.body;
 
-    const newShift = {
-      shift_id: nextShiftId++,
-      schedule_id,
-      sa_id,
-      shift_date,
-      start_time,
-      end_time,
-      status
-    };
+    // Validate required fields (basic example)
+    if (!sched_id || !studAssi_id || !shift_date || !start_time || !end_time) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
 
-    shifts.push(newShift);
+    const newShift = await prisma.shift.create({
+      data: {
+        sched_id,
+        studAssi_id,
+        shift_date: new Date(shift_date),
+        start_time: new Date(start_time),
+        end_time: new Date(end_time),
+        shift_Status: shift_Status || "ACTIVE",
+      },
+    });
 
     res.status(201).json({
       message: "Shift created successfully",
-      shift: newShift
+      shift: newShift,
     });
   } catch (error) {
     res.status(500).json({ message: "Error creating shift", error: error.message });
@@ -40,11 +38,18 @@ exports.createShift = (req, res) => {
  * @desc Get all shifts
  * @route GET /api/shifts
  */
-exports.getAllShifts = (req, res) => {
+exports.getAllShifts = async (req, res) => {
   try {
+    const shifts = await prisma.shift.findMany({
+      include: {
+        studentAssistant: true,
+        schedule: true,
+      },
+    });
+
     res.status(200).json({
       message: "Shifts retrieved successfully",
-      shifts
+      shifts,
     });
   } catch (error) {
     res.status(500).json({ message: "Error fetching shifts", error: error.message });
@@ -55,10 +60,17 @@ exports.getAllShifts = (req, res) => {
  * @desc Get a single shift by ID
  * @route GET /api/shifts/:id
  */
-exports.getShiftById = (req, res) => {
+exports.getShiftById = async (req, res) => {
   try {
-    const shiftId = parseInt(req.params.id);
-    const shift = shifts.find((s) => s.shift_id === shiftId);
+    const shift_id = parseInt(req.params.id);
+
+    const shift = await prisma.shift.findUnique({
+      where: { shift_id },
+      include: {
+        studentAssistant: true,
+        schedule: true,
+      },
+    });
 
     if (!shift) {
       return res.status(404).json({ message: "Shift not found" });
@@ -74,28 +86,35 @@ exports.getShiftById = (req, res) => {
  * @desc Update a shift
  * @route PUT /api/shifts/:id
  */
-exports.updateShift = (req, res) => {
+exports.updateShift = async (req, res) => {
   try {
-    const shiftId = parseInt(req.params.id);
-    const shift = shifts.find((s) => s.shift_id === shiftId);
+    const shift_id = parseInt(req.params.id);
+    const { sched_id, studAssi_id, shift_date, start_time, end_time, shift_Status } = req.body;
 
-    if (!shift) {
+    // Check if shift exists
+    const existingShift = await prisma.shift.findUnique({
+      where: { shift_id },
+    });
+
+    if (!existingShift) {
       return res.status(404).json({ message: "Shift not found" });
     }
 
-    const { schedule_id, sa_id, shift_date, start_time, end_time, status } = req.body;
-
-    // Update only provided fields
-    if (schedule_id) shift.schedule_id = schedule_id;
-    if (sa_id) shift.sa_id = sa_id;
-    if (shift_date) shift.shift_date = shift_date;
-    if (start_time) shift.start_time = start_time;
-    if (end_time) shift.end_time = end_time;
-    if (status) shift.status = status;
+    const updatedShift = await prisma.shift.update({
+      where: { shift_id },
+      data: {
+        ...(sched_id && { sched_id }),
+        ...(studAssi_id && { studAssi_id }),
+        ...(shift_date && { shift_date: new Date(shift_date) }),
+        ...(start_time && { start_time: new Date(start_time) }),
+        ...(end_time && { end_time: new Date(end_time) }),
+        ...(shift_Status && { shift_Status }),
+      },
+    });
 
     res.status(200).json({
       message: "Shift updated successfully",
-      shift
+      shift: updatedShift,
     });
   } catch (error) {
     res.status(500).json({ message: "Error updating shift", error: error.message });
@@ -106,20 +125,26 @@ exports.updateShift = (req, res) => {
  * @desc Delete a shift
  * @route DELETE /api/shifts/:id
  */
-exports.deleteShift = (req, res) => {
+exports.deleteShift = async (req, res) => {
   try {
-    const shiftId = parseInt(req.params.id);
-    const index = shifts.findIndex((s) => s.shift_id === shiftId);
+    const shift_id = parseInt(req.params.id);
 
-    if (index === -1) {
+    // Check if shift exists
+    const existingShift = await prisma.shift.findUnique({
+      where: { shift_id },
+    });
+
+    if (!existingShift) {
       return res.status(404).json({ message: "Shift not found" });
     }
 
-    const deletedShift = shifts.splice(index, 1);
+    await prisma.shift.delete({
+      where: { shift_id },
+    });
 
     res.status(200).json({
       message: "Shift deleted successfully",
-      deletedShiftId: deletedShift[0].shift_id
+      deletedShiftId: shift_id,
     });
   } catch (error) {
     res.status(500).json({ message: "Error deleting shift", error: error.message });
