@@ -3,7 +3,7 @@ const path = require('path');
 const authRoutes = require('./api/v1/routes/authRoutes');
 const shiftRoutes = require('./api/v1/routes/shiftRoutes');
 const errorHandler = require('./utils/errorHandler');
-
+const shiftExchangeRoutes = require('./api/v1/routes/shiftExchangeRoutes');
 const app = express();
 
 // Parse incoming JSON
@@ -13,6 +13,7 @@ app.use(express.json());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/shifts', shiftRoutes); 
 
+app.use('/api/v1/shift-exchanges', shiftExchangeRoutes);
 // Health check route (optional)
 app.get('/', (req, res) => {
   res.json({ success: true, message: 'Library backend running' });

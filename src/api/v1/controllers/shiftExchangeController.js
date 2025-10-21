@@ -1,4 +1,4 @@
-const ShiftExchangeService = require('../services/shiftExchangeService');
+const ShiftExchangeService = require('../../../services/shiftExchangeService');
 
 exports.requestExchange = async (req, res) => {
   try {

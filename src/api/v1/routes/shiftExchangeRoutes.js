@@ -7,12 +7,12 @@ const {
 } = require('../middlewares/shiftExchangeMiddleware');
 
 // Request shift exchange
-router.post('/', validateShiftExchangeRequest, shiftExchangeController.requestExchange);
+router.post('/', express.json(), validateShiftExchangeRequest, shiftExchangeController.requestExchange);
 
 // List all shift exchanges
 router.get('/', shiftExchangeController.listAllExchanges);
 
 // Accept/Decline shift exchange
-router.put('/:id', validateShiftExchangeResponse, shiftExchangeController.respondToExchange);
+router.put('/:id', express.json(), validateShiftExchangeResponse, shiftExchangeController.respondToExchange);
 
 module.exports = router;
