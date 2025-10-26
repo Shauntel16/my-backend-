@@ -32,7 +32,6 @@ async function findUserByEmail(email) {
 		};
 	}
 
-	// Domain not recognized
 	return null;
 }
 
@@ -55,25 +54,19 @@ async function login({ email, password }) {
 	};
 }
 
-/**
- * Revoke a token (logout)
- */
+
 function logout(token) {
 	if (!token) return false;
 	tokenBlacklist.add(token);
 	return true;
 }
 
-/**
- * Check if token is blacklisted
- */
+
 function isBlacklisted(token) {
 	return tokenBlacklist.has(token);
 }
 
-/**
- * Verify JWT and ensure it’s not blacklisted
- */
+
 function verifyToken(token) {
 	if (!token) throw new Error('No token provided');
 	if (isBlacklisted(token)) {

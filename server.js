@@ -1,9 +1,9 @@
 const express = require('express');
 const path = require('path');
-const authRoutes = require('./api/v1/routes/authRoutes');
-const shiftRoutes = require('./api/v1/routes/shiftRoutes');
-const errorHandler = require('./utils/errorHandler');
-const shiftExchangeRoutes = require('./api/v1/routes/shiftExchangeRoutes');
+const authRoutes = require('./src/api/v1/routes/authRoutes');
+const shiftRoutes = require('./src/api/v1/routes/shiftRoutes');
+const errorHandler = require('./src/utils/errorHandler');
+const shiftExchangeRoutes = require('./src/api/v1/routes/shiftExchangeRoutes');
 const app = express();
 
 // Parse incoming JSON

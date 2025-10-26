@@ -23,7 +23,7 @@ function logout(req, res) {
 }
 
 function verify(req, res) {
-	// verify endpoint: token validated by middleware and decoded attached to req.user
+	  
 	res.json({ success: true, user: req.user });
 }
 
