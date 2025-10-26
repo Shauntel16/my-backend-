@@ -10,7 +10,7 @@ class ShiftExchangeService {
         shiftFK_id,
         requester_id,
         accepter_id,
-        // shift_Exchange_status defaults to PENDING
+        
       },
     });
 
@@ -30,12 +30,11 @@ class ShiftExchangeService {
   }
 
   static async respondToExchange(exchange_id, status, admin_id) {
-    // Validate status is ACCEPTED or REJECTED
+  
     if (!['ACCEPTED', 'REJECTED'].includes(status)) {
       throw new Error('Invalid status');
     }
 
-    // Check if exchange exists and is pending
     const exchange = await prisma.shiftExchange.findUnique({
       where: { exchange_id },
     });
@@ -44,7 +43,7 @@ class ShiftExchangeService {
       return null;
     }
 
-    // Update the exchange status and reviewed_by
+    
     const updatedExchange = await prisma.shiftExchange.update({
       where: { exchange_id },
       data: {
