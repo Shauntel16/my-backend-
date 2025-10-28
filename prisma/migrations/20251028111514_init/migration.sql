@@ -44,6 +44,10 @@ CREATE TABLE `leaveRequest` (
     `leave_type` ENUM('SICK', 'MATERNITY_LEAVE', 'FAMILY_RESPONSIBILITY') NOT NULL,
     `isGranted` ENUM('PENDING', 'APPROVED', 'DECLINED') NOT NULL DEFAULT 'PENDING',
     `reviewed_at` DATETIME(3) NULL,
+    `proof_url` VARCHAR(191) NULL,
+    `proof_file_content` LONGBLOB NULL,
+    `proof_file_type` VARCHAR(191) NULL,
+    `proof_file_name` VARCHAR(191) NULL,
 
     INDEX `leaveRequest_studAssi_id_idx`(`studAssi_id`),
     INDEX `leaveRequest_isGranted_idx`(`isGranted`),
@@ -75,8 +79,8 @@ CREATE TABLE `shift` (
     `sched_id` INTEGER NOT NULL,
     `shift_date` DATETIME(3) NOT NULL,
     `start_time` DATETIME(3) NOT NULL,
-    `shift_Status` ENUM('ACTIVE', 'DEACTIVATED') NOT NULL DEFAULT 'ACTIVE',
     `end_time` DATETIME(3) NOT NULL,
+    `shift_Status` ENUM('ACTIVE', 'DEACTIVATED') NOT NULL DEFAULT 'ACTIVE',
     `updated_Date` DATETIME(3) NOT NULL,
 
     INDEX `shift_studAssi_id_shift_date_idx`(`studAssi_id`, `shift_date`),

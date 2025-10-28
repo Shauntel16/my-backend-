@@ -13,7 +13,7 @@ async function login(req, res, next) {
 }
 
 function logout(req, res) {
-	// token expected in Authorization header
+	
 	const header = req.headers.authorization || '';
 	const token = header.replace(/^Bearer\s+/i, '') || null;
 	if (!token) return res.status(400).json({ success: false, message: 'No token provided' });

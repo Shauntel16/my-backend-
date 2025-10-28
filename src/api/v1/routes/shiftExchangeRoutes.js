@@ -6,7 +6,7 @@ const {
   validateShiftExchangeResponse,
 } = require('../middlewares/shiftExchangeMiddleware');
 
-// Request shift exchange
+// Request a shift exchange
 router.post('/', express.json(), validateShiftExchangeRequest, shiftExchangeController.requestExchange);
 
 // List all shift exchanges
