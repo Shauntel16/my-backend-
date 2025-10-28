@@ -1,23 +1,40 @@
 const express = require('express');
-
 const router = express.Router();
-const ShiftController = require('../controllers/shiftController'); 
-const validateShift = require('../middlewares/shiftMiddleware'); 
+
+const ShiftController = require('../controllers/shiftController');
+const validateShift = require('../middlewares/shiftMiddleware');
+const authenticate = require('../middlewares/authenticate'); 
+
+router.post('/', 
+  express.json(), 
+  authenticate('admin'),  
+  validateShift, 
+  ShiftController.createShift
+);
 
 
-// Create shift 
-router.post('/', express.json(), validateShift, ShiftController.createShift);
-
-// Get all shifts
-router.get('/', ShiftController.getAllShifts);
-
-// Get single shift by ID
-router.get('/:id', ShiftController.getShiftById);
+router.get('/', 
+  authenticate('admin', 'assistant'),
+  ShiftController.getAllShifts
+);
 
 
-router.put('/:id', express.json(), ShiftController.updateShift);
+router.get('/:id', 
+  authenticate('admin', 'assistant'), 
+  ShiftController.getShiftById
+);
 
-// Delete shift
-router.delete('/:id', ShiftController.deleteShift);
+
+router.put('/:id', 
+  express.json(), 
+  authenticate('admin'),  // 
+  ShiftController.updateShift
+);
+
+
+router.delete('/:id', 
+  authenticate('admin'),  // 
+  ShiftController.deleteShift
+);
 
 module.exports = router;

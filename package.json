@@ -2,9 +2,6 @@
   "name": "library-backend",
   "version": "1.0.0",
   "main": "index.js",
-  "prisma": {
-    "seed": "node prisma/seed.js"
-  },
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon --watch src --exec node src/app.js",
