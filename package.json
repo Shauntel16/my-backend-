@@ -4,7 +4,13 @@
   "type": "module",
   "description": "",
   "scripts": {
+<<<<<<< HEAD
+    "start": "node src/app.js",
+    "dev": "nodemon --watch src --exec node src/app.js",
+    "seed": "npx prisma db seed",
+=======
     "start": "nodemon src/server.js",
+>>>>>>> origin/main
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,8 +25,16 @@
   "homepage": "https://github.com/iceptutemalahleni/library-backend#readme",
   "keywords": [],
   "dependencies": {
+<<<<<<< HEAD
+    "@prisma/client": "^6.18.0",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^17.2.3",
+=======
     "@prisma/client": "^6.17.1",
+>>>>>>> origin/main
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.0",
     "nodemon": "^3.1.10"
   },
   "devDependencies": {
