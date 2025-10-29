@@ -1,9 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../config/prisma');
 const { jwtSecret, jwtExpiresIn } = require('../config');
-
-const prisma = new PrismaClient();
 
  
 const tokenBlacklist = new Set();

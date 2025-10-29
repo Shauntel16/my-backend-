@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "node kgobeServer.js",
-    "dev": "nodemon --watch src --exec node src/app.js",
-    "seed": "npx prisma db seed",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -26,9 +25,8 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.0",
-    "nodemon": "^3.1.10"
-  },
-  "devDependencies": {
+    "multer": "^2.0.2",
+    "nodemon": "^3.1.10",
     "prisma": "^6.18.0"
   }
 }

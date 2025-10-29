@@ -1,12 +1,12 @@
 const prisma = require("../config/prisma");
 const bcrypt = require("bcryptjs");
 
-const createStudentAssitant = async (name, email, password, cellphone) => {
+const createStudentAssitant = async (name, email, password, cellphone, createdBy, location_id) => {
   const hashedPassword = await bcrypt.hash(password, 12);
   return await prisma.studentAssistant.create({
     data: {
-      createdBy: 2,
-      location_id: 1,
+      createdBy: createdBy || 1,
+      location_id: location_id || 1,
       name: name,
       email: email,
       password: hashedPassword,
@@ -25,8 +25,11 @@ const getStudentAssistantByEmail = async (email) => {
 };
 
 const removeStudentAssistantByEmail = async (email) => {
-  return await prisma.studentAssistant.delete({
+  // Soft delete: Update status to DEACTIVATED instead of hard delete
+  // This preserves data integrity (leave requests, attendance, etc.)
+  return await prisma.studentAssistant.update({
     where: { email: email },
+    data: { status: 'DEACTIVATED' },
   });
 };
 

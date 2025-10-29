@@ -3,10 +3,11 @@ const {
   getAllStudentAssistants,
   getStudentAssistantByEmail,
   removeStudentAssistantByEmail,
-} = require("../../../services/studentAssistant.service");
+} = require("../../../services/studentAssistantService");
 
 exports.addStudentAssistant = async (req, res, next) => {
   const { name, email, password, cellphone } = req.body;
+  const createdBy = req.user.id; // Get admin ID from authenticated user
 
   // Validate email format
   if (email.length < 23 || !/^\d{9}@tut4life\.ac\.za$/.test(email)) {
@@ -35,7 +36,9 @@ exports.addStudentAssistant = async (req, res, next) => {
     name,
     email,
     password,
-    cellphone
+    cellphone,
+    createdBy,
+    1 // location_id: 1 (Main Library)
   );
   console.log(studentAssistant);
   res.send("The student assistant was added successfully to the database!");
@@ -53,8 +56,27 @@ exports.displayStudentAssistantByEmail = async (req, res, next) => {
 };
 
 exports.removeStudentAssistantByEmail = async (req, res, next) => {
-  const { email } = req.body;
-  const studentAssistant = await removeStudentAssistantByEmail(email);
-  console.log(studentAssistant);
-  res.send(`The student assistant with email: ${email}, has been removed!`);
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+
+    const studentAssistant = await removeStudentAssistantByEmail(email);
+    console.log(studentAssistant);
+    res.json({
+      success: true,
+      message: `The student assistant with email: ${email} has been deactivated (soft deleted).`,
+      data: {
+        stud_Assistance_id: studentAssistant.stud_Assistance_id,
+        email: studentAssistant.email,
+        status: studentAssistant.status,
+      },
+    });
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ success: false, message: 'Student assistant not found' });
+    }
+    next(error);
+  }
 };
