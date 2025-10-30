@@ -26,3 +26,10 @@ Thumbs.db
 
 # Package lock (optional - can keep if needed)
 # package-lock.json
+
+# Frontend files (for testing only)
+frontend/
+
+# API test command files
+API_CURL_COMMANDS.md
+API_TEST_COMMANDS.md

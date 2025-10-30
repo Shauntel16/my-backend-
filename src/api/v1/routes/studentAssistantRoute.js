@@ -24,11 +24,18 @@ router.get(
   studentAssistantController.displayStudentAssistantByEmail
 );
 
-// Remove student assistant - Admin only
+// Remove student assistant - Admin only (soft delete)
 router.delete(
   "/removeStudentAssitantByEmail",
   authenticate('admin'),
   studentAssistantController.removeStudentAssistantByEmail
+);
+
+// Hard delete student assistant - Admin only (complete removal)
+router.delete(
+  "/hardDeleteStudentAssistant",
+  authenticate('admin'),
+  studentAssistantController.hardDeleteStudentAssistantByEmail
 );
 
 module.exports = router;

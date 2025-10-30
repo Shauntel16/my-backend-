@@ -20,6 +20,13 @@ router.get(
   leaveRequestController.getLeaveRequests
 );
 
+// Get pending leave requests only (Admin only - for approve/decline)
+router.get(
+  "/pendingLeaveRequests",
+  authenticate('admin'),
+  leaveRequestController.getPendingLeaveRequests
+);
+
 // Get all leave requests for the authenticated student assistant
 router.get(
   "/myLeaveRequests",
@@ -47,6 +54,13 @@ router.put(
   authenticate('assistant'),
   uploadProof,
   leaveRequestController.uploadProof
+);
+
+// Get leave requests for a specific student assistant (Admin only)
+router.get(
+  "/student/:studAssi_id",
+  authenticate('admin'),
+  leaveRequestController.getLeaveRequestsByStudentId
 );
 
 // Download/View proof file (Admin only)

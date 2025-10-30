@@ -1,5 +1,6 @@
 const {
   getAllLeaveRequests,
+  getPendingLeaveRequests,
   createLeaveRequest,
   getLeaveRequestsByStudentAssistant,
   getLeaveRequestById,
@@ -15,11 +16,11 @@ exports.createLeaveRequest = async (req, res, next) => {
     const studAssi_id = req.user.id; // From authentication middleware
     const { reviewed_by, reason, start_Date, end_date, leave_type } = req.body;
 
-    // Validate required fields (studAssi_id is from token, so we check others)
-    if (!reviewed_by || !reason || !start_Date || !end_date || !leave_type) {
+    // Validate required fields (studAssi_id is from token, reviewed_by is optional)
+    if (!reason || !start_Date || !end_date || !leave_type) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields: reviewed_by, reason, start_Date, end_date, leave_type",
+        message: "Missing required fields: reason, start_Date, end_date, leave_type",
       });
     }
 
@@ -39,7 +40,7 @@ exports.createLeaveRequest = async (req, res, next) => {
 
     const leaveRequestData = {
       studAssi_id: parseInt(studAssi_id),
-      reviewed_by: parseInt(reviewed_by),
+      reviewed_by: reviewed_by ? parseInt(reviewed_by) : null,
       reason,
       start_Date,
       end_date,
@@ -74,6 +75,35 @@ exports.createLeaveRequest = async (req, res, next) => {
   }
 };
 
+// Get leave requests for a specific student assistant (Admin only)
+exports.getLeaveRequestsByStudentId = async (req, res, next) => {
+  try {
+    const { studAssi_id } = req.params;
+
+    if (!studAssi_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required parameter: studAssi_id",
+      });
+    }
+
+    const leaveRequests = await getLeaveRequestsByStudentAssistant(studAssi_id);
+
+    res.json({
+      success: true,
+      message: "Leave requests retrieved successfully",
+      data: leaveRequests,
+      count: leaveRequests.length,
+    });
+  } catch (error) {
+    console.error("Error fetching leave requests:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Error fetching leave requests",
+    });
+  }
+};
+
 // Get all leave requests (Admin only)
 exports.getLeaveRequests = async (req, res, next) => {
   try {
@@ -88,6 +118,25 @@ exports.getLeaveRequests = async (req, res, next) => {
     res.status(500).json({
       success: false,
       message: error.message || "Error fetching leave requests",
+    });
+  }
+};
+
+// Get pending leave requests only (Admin only - for approve/decline)
+exports.getPendingLeaveRequests = async (req, res, next) => {
+  try {
+    const leaveRequests = await getPendingLeaveRequests();
+    res.json({
+      success: true,
+      message: `Retrieved ${leaveRequests.length} pending leave request(s)`,
+      data: leaveRequests,
+      count: leaveRequests.length,
+    });
+  } catch (error) {
+    console.error("Error fetching pending leave requests:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Error fetching pending leave requests",
     });
   }
 };
@@ -277,10 +326,18 @@ exports.getLeaveRequestProof = async (req, res, next) => {
 
     // Set appropriate headers for file download/viewing
     const contentType = leaveRequest.proof_file_type || 'application/octet-stream';
-    const fileName = leaveRequest.proof_file_name || `proof_${leave_id}`;
-    
+    const defaultFileName = leaveRequest.proof_file_name || `proof_${leave_id}`;
+    // Allow admin to override suggested filename and disposition via query
+    const requestedFileName = (req.query && req.query.filename) ? String(req.query.filename) : defaultFileName;
+    const disposition = (req.query && req.query.disposition) ? String(req.query.disposition).toLowerCase() : 'attachment';
+    const safeDisposition = disposition === 'inline' ? 'inline' : 'attachment';
+
+    // Basic filename sanitization for header safety
+    const safeFileName = requestedFileName.replace(/[\r\n\0]/g, '').replace(/"/g, '');
+
     res.setHeader('Content-Type', contentType);
-    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Content-Disposition', `${safeDisposition}; filename="${safeFileName}"`);
     res.setHeader('Content-Length', leaveRequest.proof_file_content.length);
 
     // Send the file content

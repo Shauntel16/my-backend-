@@ -3,6 +3,7 @@ const {
   getAllStudentAssistants,
   getStudentAssistantByEmail,
   removeStudentAssistantByEmail,
+  hardDeleteStudentAssistantByEmail,
 } = require("../../../services/studentAssistantService");
 
 exports.addStudentAssistant = async (req, res, next) => {
@@ -45,8 +46,21 @@ exports.addStudentAssistant = async (req, res, next) => {
 };
 
 exports.displayAllStudentAssistants = async (req, res, next) => {
-  const studentAssistants = await getAllStudentAssistants();
-  res.json(studentAssistants);
+  try {
+    const studentAssistants = await getAllStudentAssistants();
+    res.json({
+      success: true,
+      message: `Retrieved ${studentAssistants.length} student assistant(s)`,
+      count: studentAssistants.length,
+      data: studentAssistants,
+    });
+  } catch (error) {
+    console.error("Error fetching student assistants:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Error fetching student assistants",
+    });
+  }
 };
 
 exports.displayStudentAssistantByEmail = async (req, res, next) => {
@@ -76,6 +90,33 @@ exports.removeStudentAssistantByEmail = async (req, res, next) => {
   } catch (error) {
     if (error.code === 'P2025') {
       return res.status(404).json({ success: false, message: 'Student assistant not found' });
+    }
+    next(error);
+  }
+};
+
+exports.hardDeleteStudentAssistantByEmail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+
+    await hardDeleteStudentAssistantByEmail(email);
+    res.json({
+      success: true,
+      message: `The student assistant with email: ${email} has been completely removed from the database.`,
+    });
+  } catch (error) {
+    if (error.code === 'P2025' || error.message === 'Student assistant not found') {
+      return res.status(404).json({ success: false, message: 'Student assistant not found' });
+    }
+    if (error.code === 'P2003' || error.code === 'HAS_RELATED_RECORDS') {
+      return res.status(400).json({ 
+        success: false, 
+        message: error.message || 'Student has references to other tables (leave requests, attendance, shifts, or shift exchanges). You may deactivate instead.',
+        canDeactivate: true
+      });
     }
     next(error);
   }

@@ -21,9 +21,25 @@ const getLeaveRequestProofById = async (leave_id) => {
   return leaveRequest;
 };
 
-const getAllLeaveRequests = async () => {
+const getPendingLeaveRequests = async () => {
   return await prisma.leaveRequest.findMany({
-    include: {
+    where: {
+      isGranted: 'PENDING'
+    },
+    select: {
+      leave_id: true,
+      studAssi_id: true,
+      reviewed_by: true,
+      reason: true,
+      start_Date: true,
+      end_date: true,
+      leave_type: true,
+      isGranted: true,
+      reviewed_at: true,
+      proof_url: true,
+      proof_file_type: true,
+      proof_file_name: true,
+      // Exclude proof_file_content
       studentAssistant: {
         select: {
           stud_Assistance_id: true,
@@ -38,6 +54,46 @@ const getAllLeaveRequests = async () => {
           email: true,
         },
       },
+    },
+    orderBy: {
+      start_Date: 'desc', // Most recent first
+    },
+  });
+};
+
+const getAllLeaveRequests = async () => {
+  return await prisma.leaveRequest.findMany({
+    select: {
+      leave_id: true,
+      studAssi_id: true,
+      reviewed_by: true,
+      reason: true,
+      start_Date: true,
+      end_date: true,
+      leave_type: true,
+      isGranted: true,
+      reviewed_at: true,
+      proof_url: true,
+      proof_file_type: true,
+      proof_file_name: true,
+      // Exclude proof_file_content
+      studentAssistant: {
+        select: {
+          stud_Assistance_id: true,
+          name: true,
+          email: true,
+        },
+      },
+      administrator: {
+        select: {
+          admin_id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: {
+      start_Date: 'desc', // Most recent first
     },
   });
 };
@@ -64,13 +120,15 @@ const createLeaveRequest = async (leaveRequestData) => {
     throw new Error("Student Assistant not found");
   }
 
-  // Validate that administrator exists
-  const administrator = await prisma.administrator.findUnique({
-    where: { admin_id: reviewed_by },
-  });
+  // Validate that administrator exists only if reviewed_by is provided
+  if (reviewed_by) {
+    const administrator = await prisma.administrator.findUnique({
+      where: { admin_id: reviewed_by },
+    });
 
-  if (!administrator) {
-    throw new Error("Administrator not found");
+    if (!administrator) {
+      throw new Error("Administrator not found");
+    }
   }
 
   // Validate date range
@@ -85,7 +143,7 @@ const createLeaveRequest = async (leaveRequestData) => {
   const leaveRequest = await prisma.leaveRequest.create({
     data: {
       studAssi_id,
-      reviewed_by,
+      reviewed_by: reviewed_by || null, // Set to null as default, will be updated when admin reviews
       reason,
       start_Date: startDate,
       end_date: endDate,
@@ -95,7 +153,20 @@ const createLeaveRequest = async (leaveRequestData) => {
       proof_file_name: proof_file_name || null,
       isGranted: "PENDING",
     },
-    include: {
+    select: {
+      leave_id: true,
+      studAssi_id: true,
+      reviewed_by: true,
+      reason: true,
+      start_Date: true,
+      end_date: true,
+      leave_type: true,
+      isGranted: true,
+      reviewed_at: true,
+      proof_url: true,
+      proof_file_type: true,
+      proof_file_name: true,
+      // Exclude proof_file_content
       studentAssistant: {
         select: {
           stud_Assistance_id: true,
@@ -121,7 +192,20 @@ const getLeaveRequestsByStudentAssistant = async (studAssi_id) => {
     where: {
       studAssi_id: parseInt(studAssi_id),
     },
-    include: {
+    select: {
+      leave_id: true,
+      studAssi_id: true,
+      reviewed_by: true,
+      reason: true,
+      start_Date: true,
+      end_date: true,
+      leave_type: true,
+      isGranted: true,
+      reviewed_at: true,
+      proof_url: true,
+      proof_file_type: true,
+      proof_file_name: true,
+      // Exclude proof_file_content
       studentAssistant: {
         select: {
           stud_Assistance_id: true,
@@ -153,7 +237,20 @@ const getLeaveRequestById = async (leave_id, studAssi_id = null) => {
 
   const leaveRequest = await prisma.leaveRequest.findFirst({
     where: whereClause,
-    include: {
+    select: {
+      leave_id: true,
+      studAssi_id: true,
+      reviewed_by: true,
+      reason: true,
+      start_Date: true,
+      end_date: true,
+      leave_type: true,
+      isGranted: true,
+      reviewed_at: true,
+      proof_url: true,
+      proof_file_type: true,
+      proof_file_name: true,
+      // Exclude proof_file_content
       studentAssistant: {
         select: {
           stud_Assistance_id: true,
@@ -181,6 +278,35 @@ const updateLeaveRequestById = async (leave_id, isGranted, reviewed_by) => {
       isGranted: isGranted,
       reviewed_at: new Date(),
       reviewed_by: reviewed_by,
+    },
+    select: {
+      leave_id: true,
+      studAssi_id: true,
+      reviewed_by: true,
+      reason: true,
+      start_Date: true,
+      end_date: true,
+      leave_type: true,
+      isGranted: true,
+      reviewed_at: true,
+      proof_url: true,
+      proof_file_type: true,
+      proof_file_name: true,
+      // Exclude proof_file_content
+      studentAssistant: {
+        select: {
+          stud_Assistance_id: true,
+          name: true,
+          email: true,
+        },
+      },
+      administrator: {
+        select: {
+          admin_id: true,
+          name: true,
+          email: true,
+        },
+      },
     },
   });
 };
@@ -211,7 +337,20 @@ const updateLeaveRequestProof = async (leave_id, studAssi_id, proof_file_content
       proof_file_type: proof_file_type || null,
       proof_file_name: proof_file_name || null,
     },
-    include: {
+    select: {
+      leave_id: true,
+      studAssi_id: true,
+      reviewed_by: true,
+      reason: true,
+      start_Date: true,
+      end_date: true,
+      leave_type: true,
+      isGranted: true,
+      reviewed_at: true,
+      proof_url: true,
+      proof_file_type: true,
+      proof_file_name: true,
+      // Exclude proof_file_content
       studentAssistant: {
         select: {
           stud_Assistance_id: true,
@@ -232,6 +371,7 @@ const updateLeaveRequestProof = async (leave_id, studAssi_id, proof_file_content
 
 module.exports = {
   getAllLeaveRequests,
+  getPendingLeaveRequests,
   createLeaveRequest,
   getLeaveRequestsByStudentAssistant,
   getLeaveRequestById,
